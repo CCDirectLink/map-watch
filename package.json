@@ -2,6 +2,6 @@
     "name": "map-watch",
     "ccmodHumanName": "Map Watcher",
     "description": "A mod that automatically loads a map when changes are detected",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "plugin": "plugin.js"
 }
