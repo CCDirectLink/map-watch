@@ -30,8 +30,9 @@ export default class MapWatcher extends Plugin {
      * @param {string} event 
      * @param {string} filename 
      */
-	_fileChanged(event, filename) {
-		if (this._isMap(filename)) {
+	async _fileChanged(event, filename) {
+		if (this._isMap(filename) && await this._exists(filename)) {
+			this._addToAssets(filename);
 			this._loadMap(filename);
 		}
 	}
@@ -47,6 +48,22 @@ export default class MapWatcher extends Plugin {
 	}
 
 	/**
+	 * 
+	 * @param {string} filename 
+	 * @returns {Promise<boolean>}
+	 */
+	_exists(filename) {
+		return new Promise((resolve) => {
+			fs.stat('./assets/' + filename, (err, stat) => {
+				if (err) {
+					return resolve(false);
+				}
+				resolve(stat.isFile());
+			});
+		});
+	}
+
+	/**
      * 
      * @param {string} filename 
      */
@@ -57,6 +74,35 @@ export default class MapWatcher extends Plugin {
 			.replace(/^data\/maps\//, '')
 			.replace(/\.json$/, '')
 			.replace(/\//g, '.');
+	}
+
+	/**
+	 * 
+	 * @param {string} filename 
+	 */
+	_getDirName(filename) {
+		filename = filename.replace(/\\/g, '/');
+		return 'assets/' + filename.substr(0, filename.indexOf('/', 5)) + '/';
+	}
+
+	/**
+	 * 
+	 * @param {string} filename 
+	 */
+	_getMod(filename) {
+		const baseDir = this._getDirName(filename);
+		return window.activeMods.find(mod => mod.baseDirectory === baseDir);
+	}
+
+	/**
+	 * 
+	 * @param {string} filename 
+	 */
+	_addToAssets(filename) {
+		const mod = this._getMod(filename);
+		if (mod) {
+			mod.assets.push(filename.replace(/\\/g, '/'));
+		}
 	}
 
 	/**
