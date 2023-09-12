@@ -1,8 +1,8 @@
 const fs = require('fs');
+const chokidar = require("chokidar");
 
-export default class MapWatcher extends Plugin {
+export default class MapWatcher {
 	constructor() {
-		super();
 		this.watchloads = 0;
 		this.lastPos = {x: 0, y: 0, z: 0};
 	}
@@ -12,9 +12,10 @@ export default class MapWatcher extends Plugin {
 			throw new Error('MapWatcher does not work in the browser.');
 		}
 
-		fs.watch('./assets/', {
-			recursive: true
-		}, (event, filename) => this._fileChanged(event, filename));
+		chokidar.watch('./assets/').on('all', (event, filename) => this._fileChanged(event, filename));
+		// fs.watch('./assets/', {
+		// 	recursive: true
+		// }, (event, filename) => this._fileChanged(event, filename));
         
 		const self = this;
 		sc.CrossCode.inject({
@@ -44,7 +45,7 @@ export default class MapWatcher extends Plugin {
 	_isMap(filename) {
 		return !!filename
         && filename.endsWith('.json')
-        && /^(mods\/[^/]+\/assets\/)?data\/maps\//.test(filename.replace(/\\/g, '/'));
+        && /^assets\/(mods\/[^/]+\/assets\/)?data\/maps\//.test(filename.replace(/\\/g, '/'));
 	}
 
 	/**
@@ -54,7 +55,7 @@ export default class MapWatcher extends Plugin {
 	 */
 	_exists(filename) {
 		return new Promise((resolve) => {
-			fs.stat('./assets/' + filename, (err, stat) => {
+			fs.stat('./' + filename, (err, stat) => {
 				if (err) {
 					return resolve(false);
 				}
@@ -70,7 +71,7 @@ export default class MapWatcher extends Plugin {
 	_getMapName(filename) {
 		return filename
 			.replace(/\\/g, '/')
-			.replace(/^mods\/[^/]+\/assets\//, '')
+			.replace(/^assets\/mods\/[^/]+\/assets\//, '')
 			.replace(/^data\/maps\//, '')
 			.replace(/\.json$/, '')
 			.replace(/\//g, '.');
@@ -91,7 +92,10 @@ export default class MapWatcher extends Plugin {
 	 */
 	_getMod(filename) {
 		const baseDir = this._getDirName(filename);
-		return window.activeMods.find(mod => mod.baseDirectory === baseDir);
+		if ("activeMods" in window)
+			return window.activeMods.find(mod => mod.baseDirectory === baseDir);
+		else
+			return Array.from(modloader.loadedMods.values()).find(mod => mod.baseDirectory === baseDir);
 	}
 
 	/**
