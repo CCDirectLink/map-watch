@@ -1,6 +1,6 @@
 {
   "id": "map-watch",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "title": "Map Watcher",
   "description": "A mod that automatically loads a map when changes are detected",
   "repository": "https://github.com/CCDirectLink/map-watch",

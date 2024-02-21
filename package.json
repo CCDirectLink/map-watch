@@ -2,7 +2,7 @@
   "name": "map-watch",
   "ccmodHumanName": "Map Watcher",
   "description": "A mod that automatically loads a map when changes are detected",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "plugin": "plugin.js",
   "scripts": {
     "build": "esbuild --bundle --platform=node --sourcemap=inline --outfile=plugin.js --target=es2018 --platform=node --format=esm src/plugin.js"
